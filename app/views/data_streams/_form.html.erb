@@ -1,0 +1,33 @@
+<%= form_for(@data_stream) do |f| %>
+  <% if @data_stream.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@data_stream.errors.count, "error") %> prohibited this data_stream from being saved:</h2>
+
+      <ul>
+      <% @data_stream.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :id_item %><br />
+    <%= f.number_field :id_item %>
+  </div>
+  <div class="field">
+    <%= f.label :id_role %><br />
+    <%= f.number_field :id_role %>
+  </div>
+  <div class="field">
+    <%= f.label :info %><br />
+    <%= f.text_field :info %>
+  </div>
+  <div class="field">
+    <%= f.label :type_data %><br />
+    <%= f.text_field :type_data %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

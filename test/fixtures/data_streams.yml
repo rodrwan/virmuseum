@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  id_item: 1
+  id_role: 1
+  info: MyString
+  type_data: MyString
+
+two:
+  id_item: 1
+  id_role: 1
+  info: MyString
+  type_data: MyString

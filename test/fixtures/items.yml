@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  id_hierarchy: 1
+  id_data_stream: 1
+  id_place: 1
+  visits: 1
+  description: MyString
+
+two:
+  id_hierarchy: 1
+  id_data_stream: 1
+  id_place: 1
+  visits: 1
+  description: MyString

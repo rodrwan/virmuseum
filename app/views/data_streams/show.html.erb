@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Id item:</b>
+  <%= @data_stream.id_item %>
+</p>
+
+<p>
+  <b>Id role:</b>
+  <%= @data_stream.id_role %>
+</p>
+
+<p>
+  <b>Info:</b>
+  <%= @data_stream.info %>
+</p>
+
+<p>
+  <b>Type data:</b>
+  <%= @data_stream.type_data %>
+</p>
+
+
+<%= link_to 'Edit', edit_data_stream_path(@data_stream) %> |
+<%= link_to 'Back', data_streams_path %>
