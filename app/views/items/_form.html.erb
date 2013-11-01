@@ -12,13 +12,10 @@
   <% end %>
 
   <div class="field">
-    <%= f.label :id_data_stream %><br />
-    <%= f.number_field :id_data_stream %>
-  </div>
-  <div class="field">
     <%= f.label :id_place %><br />
-    <%= f.number_field :id_place %>
+    <%= f.select :id_place, options_for_select(Place.all.map{|s|[s.name, s.id]}) %>
   </div>
+   
   <div class="field">
     <%= f.label :visits %><br />
     <%= f.number_field :visits %>

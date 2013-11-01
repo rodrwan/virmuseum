@@ -23,16 +23,13 @@ ActiveRecord::Schema.define(:version => 20131101040322) do
   end
 
   create_table "items", :force => true do |t|
-    t.integer  "id_data_stream"
     t.integer  "id_place"
     t.integer  "visits"
     t.string   "hierarchy"
     t.string   "description"
-    t.datetime "created_at",     :null => false
-    t.datetime "updated_at",     :null => false
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
   end
-
-  add_index "items", ["id_place"], :name => "index_items_on_id_place"
 
   create_table "places", :force => true do |t|
     t.string   "name"
@@ -42,7 +39,7 @@ ActiveRecord::Schema.define(:version => 20131101040322) do
 
   create_table "roles", :force => true do |t|
     t.integer  "id_user"
-    t.string   "type"
+    t.string   "kind"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
