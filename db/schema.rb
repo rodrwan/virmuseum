@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131101032040) do
+ActiveRecord::Schema.define(:version => 20131101040322) do
 
   create_table "data_streams", :force => true do |t|
     t.integer  "id_item"
@@ -43,6 +43,13 @@ ActiveRecord::Schema.define(:version => 20131101032040) do
   create_table "roles", :force => true do |t|
     t.integer  "id_user"
     t.string   "type"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "terms", :force => true do |t|
+    t.string   "data"
+    t.integer  "id_item"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end

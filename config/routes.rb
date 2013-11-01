@@ -1,4 +1,7 @@
 Virmuseum::Application.routes.draw do
+  resources :terms
+
+
   resources :items
 
 
