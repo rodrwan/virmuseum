@@ -1,11 +1,11 @@
 class CreateItems < ActiveRecord::Migration
   def change
     create_table :items do |t|
-      t.integer :id_place
-      t.integer :visits
-      t.string :hierarchy
+      t.string :name
+      t.string :cientific_name
       t.string :description
-
+      t.integer :visits
+      t.integer :visible
       t.timestamps
     end
   end

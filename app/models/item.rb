@@ -1,4 +1,6 @@
 class Item < ActiveRecord::Base
-  belongs_to :place, :foreign_key => "id_place"
-  attr_accessible :description, :id_place, :visits, :hierarchy
+  belongs_to :place
+  has_many :data_streams
+  belongs_to :hierarchy
+  attr_accessible :name, :description, :place_id, :visits, :hierarchy
 end

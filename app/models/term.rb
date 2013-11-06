@@ -1,3 +1,4 @@
 class Term < ActiveRecord::Base
-  attr_accessible :data, :id_item
+  has_many :term_vs_items
+  attr_accessible :data
 end

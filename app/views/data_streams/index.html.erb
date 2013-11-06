@@ -13,10 +13,10 @@
 
 <% @data_streams.each do |data_stream| %>
   <tr>
-    <td><%= data_stream.id_item %></td>
-    <td><%= data_stream.id_role %></td>
-    <td><%= data_stream.info %></td>
-    <td><%= data_stream.type_data %></td>
+    <td><%= data_stream.item.name %></td>
+    <td><%= data_stream.role.name %></td>
+    <td><%= data_stream.url %></td>
+    <td><%= data_stream.data_type %></td>
     <td><%= link_to 'Show', data_stream %></td>
     <td><%= link_to 'Edit', edit_data_stream_path(data_stream) %></td>
     <td><%= link_to 'Destroy', data_stream, method: :delete, data: { confirm: 'Are you sure?' } %></td>

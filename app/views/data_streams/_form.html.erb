@@ -16,7 +16,7 @@
     <%= f.number_field :id_item %>
   </div>
   <div class="field">
-    <%= f.label :id_role %><br />
+    <%= f.label :id_role %><br />2
     <%= f.select :id_role, options_for_select(Role.all.map{|s|[s.kind, s.id]}) %>
   </div>
   <div class="field">

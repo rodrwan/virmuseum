@@ -1,4 +1,11 @@
 Virmuseum::Application.routes.draw do
+
+  resources :users
+
+
+  devise_for :admin_users, ActiveAdmin::Devise.config
+  ActiveAdmin.routes(self)
+
   resources :terms
 
 
@@ -12,6 +19,9 @@ Virmuseum::Application.routes.draw do
 
 
   resources :places
+
+
+  resources :recommends
 
 
   # The priority is based upon order of creation:

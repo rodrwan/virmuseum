@@ -1,4 +1,5 @@
 class Role < ActiveRecord::Base
-  has_many :data_streams
-  attr_accessible :id_user, :kind
+  # has_many :data_streams
+  has_one :user
+  attr_accessible :name
 end

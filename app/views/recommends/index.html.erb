@@ -1,0 +1,18 @@
+<h1>Listing term vs items</h1>
+
+<table>
+  <tr>
+  	<th>Item</th>
+    <th>Term</th>
+    <th>Cuenta</th>
+  </tr>
+
+<% @tvis.each do |tvi| %>
+  <tr>
+  	<td><%= tvi.item_id %></td>
+    <td><%= tvi.term_id %></td>
+    <td><%= tvi.count %></td>
+  </tr>
+<% end %>
+</table>
+
