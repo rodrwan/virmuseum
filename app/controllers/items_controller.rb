@@ -2,7 +2,7 @@ class ItemsController < ApplicationController
   # GET /items
   # GET /items.json
   def index
-    @items = Item.all
+    @items = Item.where(visible: 1)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -14,14 +14,14 @@ class ItemsController < ApplicationController
   # GET /items/1.json
   def show
     begin
-      @item = Item.find(params[:id])
+      @item = Item.find(params[:id]).where(visible: 0)
 
       respond_to do |format|
         format.html # show.html.erb
         format.json { render json: @item }
       end
     rescue
-      redirect_to :controller => "items", :action => "index"
+      redirect_to :controller => "items", :action => "index", :format => :json
       return 
     end
   end

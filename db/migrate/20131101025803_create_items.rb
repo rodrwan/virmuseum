@@ -3,9 +3,10 @@ class CreateItems < ActiveRecord::Migration
     create_table :items do |t|
       t.string :name
       t.string :cientific_name
-      t.string :description
+      t.text :description
       t.integer :visits
       t.integer :visible
+      
       t.timestamps
     end
   end

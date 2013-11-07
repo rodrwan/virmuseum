@@ -57,7 +57,7 @@ ActiveRecord::Schema.define(:version => 20131104213018) do
 
   create_table "hierarchies", :force => true do |t|
     t.string   "name"
-    t.string   "description"
+    t.text   "description"
     t.integer  "parent_id"
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(:version => 20131104213018) do
     t.string   "name"
     t.string   "cientific_name"
     t.integer  "visits"
-    t.string   "description"
+    t.text   "description"
     t.datetime "created_at",     :null => false
     t.datetime "updated_at",     :null => false
     t.integer  "place_id"
@@ -96,6 +96,7 @@ ActiveRecord::Schema.define(:version => 20131104213018) do
 
   create_table "terms", :force => true do |t|
     t.string   "data"
+    t.integer  "count"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
