@@ -10,33 +10,33 @@ from math import sqrt, pow
 
 """
 #
-# Calculo de distancia con 
+# Calculo de distancia con
 # Algoritmo de manhattan
 # 
 """
-def manhattan(arrA, arrB, bow):
+def manhattan(arrA, desc, bow):
   suma = 0.0
-  tok = token(arrB)
+  tok = token(desc)
   letterTok, letterTokFrec = [], []
     
   for i in tok:
     letterTok.append(i[0])
     letterTokFrec.append(i[1])
 
-  num = [0]*len(bow)
+  arrB = [0]*len(bow)
   for i in letterTok:
     if i in bow:
       pos = bow.index( i )
-      num[pos] += 1
+      arrB[pos] += 1
 
   k = 0
   for j in arrA:
-    suma += abs(j - num[k])
+    suma += abs(j - arrB[k])
     k += 1
   return suma
 """
 #
-# Calculo de distancia con 
+# Calculo de distancia con
 # Algoritmo canberra
 # 
 """
@@ -69,7 +69,7 @@ def canberra(arrA, arrB, bow):
   return suma
 """
 #
-# Calculo de distancia con 
+# Calculo de distancia con
 # Algoritmo Squared Cord
 # 
 """
@@ -97,7 +97,7 @@ def cord(arrA, arrB, bow):
   return suma
 """
 #
-# Calculo de distancia con 
+# Calculo de distancia con
 # Algoritmo Squared Chi-squered
 # 
 """
@@ -145,7 +145,7 @@ def token(files):
       final_tok.append(j)
     
   nonPunct = re.compile('.*[\W+\w+].*')
-  filtered = [w for w in final_tok if nonPunct.match(w)]    
+  filtered = [w for w in final_tok if nonPunct.match(w)]
   counts = Counter(filtered)
   token = counts.items()
 
@@ -182,7 +182,7 @@ matrix = []
 # here we define the matrix of occurency
 for row in descript:
   matrix_row = [0]*len(bag_of_word)
-  tok = token(row[0].rstrip())    
+  tok = token(row[0].rstrip())
   for j in tok:
     word = j[0].replace(".", "")
     pos = bag_of_word.index( word )
@@ -194,23 +194,33 @@ for row in descript:
 
 #item selected
 try:
-  item = int(sys.argv[1])
-  med = sys.argv[2]
+  item = int(sys.argv[1]) # item to compare
+  med = sys.argv[2]       # method for calculate distance
+  user = sys.argv[3]      # user who want the recommendation
 except:
   print "Faltan parametros:"
-  print "opciones:"
+  print "python test.py [item] [med] [user]"
+  print "opciones para med:"
   print "\tman"
   print "\tcan"
   print "\tcord"
   print "\tchi"
+print "########################################################################################"
+print "########################################################################################"
+print
+print "Item seleccionado: " + str(item+1)
 row = descript[item]
 cur.execute("SELECT name FROM hierarchies WHERE id = (SELECT id_hierarchy FROM items WHERE id = %s)", item+1)
 hierarchy = cur.fetchall()[0][0]
 print "Jerarquia: " + hierarchy
+print "Usuario: " + user
 print
+print "########################################################################################"
+print "########################################################################################"
 cur.execute("SELECT id FROM items WHERE id_hierarchy = (SELECT id FROM hierarchies WHERE name = %s) AND id != %s", (hierarchy, item+1))
 items_by_hierarchy = cur.fetchall()
 
+# here we choose the method to calculate the distance between items
 final_result = {}
 i = 0
 for item_bag_temp in matrix:
@@ -221,7 +231,7 @@ for item_bag_temp in matrix:
   elif med == "cord":
     final_result[str(i+1)] = cord(item_bag_temp, row[0], bag_of_word)
   elif med == "chi":
-    final_result[str(i+1)] = chiSquared(item_bag_temp, row[0], bag_of_word) 
+    final_result[str(i+1)] = chiSquared(item_bag_temp, row[0], bag_of_word)
   else:
     print "error en la eleccion, metodo no existe"
     print "opciones:"
@@ -231,56 +241,100 @@ for item_bag_temp in matrix:
     print "\tchi"
     break
     sys.exit()
-  # print "Manhattan: " +str(manhattan(item_bag_temp, row[0], bag_of_word))
-  # print "Canberra: " +str(canberra(item_bag_temp, row[0], bag_of_word))
-  # print "Squared Cord: " +str(cord(item_bag_temp, row[0], bag_of_word))
-  # print "Chi-squered: " +str(chiSquared(item_bag_temp, row[0], bag_of_word))
-  # print
   i += 1
 
-#import operator
-#sorted_x = sorted(final_result.iteritems(), key=operator.itemgetter(1))
+# we organize the result in diferenct way
+# ascendent
 rec_asc = sorted(final_result.items(), key=lambda x: (x[1], x[0]))
+# decendent
 rec_desc = sorted(final_result.items(), key=lambda x: (-x[1], x[0]))
 
-print "Resultados mas diversos:"
-final_recommend_id = []
-for i in rec_desc:
+if user == "adulto":
+  print "Resultados mas diversos:"
+  final_recommend_id = []
+  for i in rec_desc:
     if str(item+1) != i[0]:
-        final_recommend_id.append(i[0])
+      final_recommend_id.append(i[0])
 
-print "Sin filtro jerarquico:"
-print final_recommend_id
-print
+  print "Sin filtro jerarquico:"
+  i = len(final_recommend_id)
+  j = 0
+  while j < 10:
+    if j == i:
+      break
+    print "Item " + str(final_recommend_id[j])
+    j += 1
+  print
 
-j = 0
-final_recommend_id_herarchy = []
-for i in final_recommend_id:
+  j = 0
+  final_recommend_id_herarchy = []
+  for i in final_recommend_id:
     if str(items_by_hierarchy[j][0]) == i:
-        final_recommend_id_herarchy.append(i)
+      final_recommend_id_herarchy.append(i)
 
-print "Con filtro jerarquico"
-print final_recommend_id_herarchy
-print 
+  print "Con filtro jerarquico:"
+  i = len(final_recommend_id_herarchy)
+  j = 0
+  while j < 10:
+    if j == i:
+      break
+    print "Item " + str(final_recommend_id_herarchy[j])
+    j += 1
+  print
 
-print "Resultados mas parecidos:"
-final_recommend_id = []
-for i in rec_asc:
+  print "Recomendacion final para adulto:"
+  for i in final_recommend_id:
+    cur.execute("SELECT visible FROM items WHERE id = %s", (i))
+    visible = cur.fetchall()
+    if visible[0][0] == 1:
+      cur.execute("SELECT url, data_type FROM data_streams WHERE id_item = %s AND id_role = (SELECT id FROM roles WHERE id = (SELECT id_role FROM users WHERE name = %s));", (i, user))
+      data_stream = cur.fetchall()
+      print i + " -> " + str(data_stream)
+
+###################### resultados mas parecidos #############################
+if user == "niño":
+  print "Resultados mas parecidos:"
+  final_recommend_id = []
+  for i in rec_asc:
     if str(item+1) != i[0]:
-        final_recommend_id.append(i[0])
+      final_recommend_id.append(i[0])
 
-print "Sin filtro jerarquico:"
-print final_recommend_id
-print
+  print "Sin filtro jerarquico:"
+  i = len(final_recommend_id)
+  j = 0
+  while j < 10:
+    if j == i:
+      break
+    print "Item " + str(final_recommend_id[j])
+    j += 1
+  print
 
-j = 0
-final_recommend_id_herarchy = []
-for i in final_recommend_id:
+  j = 0
+  final_recommend_id_herarchy = []
+  for i in final_recommend_id:
     if str(items_by_hierarchy[j][0]) == i:
-        final_recommend_id_herarchy.append(i)
+      final_recommend_id_herarchy.append(i)
 
-print "Con filtro jerarquico"
-print final_recommend_id_herarchy
+  print "Con filtro jerarquico:"
+  i = len(final_recommend_id_herarchy)
+  j = 0
+  while j < 10:
+    if j == i:
+      break
+    print "Item " + str(final_recommend_id_herarchy[j])
+    j += 1
+  print
+
+  print "Recomendacion final para niño:"
+  for i in final_recommend_id:
+    cur.execute("SELECT visible, visits FROM items WHERE id = %s", (i))
+    visible = cur.fetchall()
+    if visible[0][0] == 1 and visible[0][1] > 0:
+      cur.execute("SELECT url, data_type FROM data_streams WHERE id_item = %s AND id_role = (SELECT id FROM roles WHERE id = (SELECT id_role FROM users WHERE name = %s));", (i, user))
+      data_stream = cur.fetchall()
+      print i + " -> " + str(data_stream)
+
+
 # we need save this values into the db
 #for i in globalWords:
 #  print i + " -> " + str(globalWords[i])
