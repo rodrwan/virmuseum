@@ -314,7 +314,7 @@ def recommend():
       return json.dumps({'elements' : 0})
 
   ###################### resultados mas parecidos #############################
-  if user == "niño":
+  if user == "child":
     print "Resultados mas parecidos:"
     final_recommend_id = []
     for i in rec_asc:
@@ -356,7 +356,7 @@ def recommend():
       cur.execute("SELECT visible, visits FROM items WHERE id = %s", (i))
       visible = cur.fetchall()
       if visible[0][0] == 1:
-        cur.execute("SELECT url, data_type FROM data_streams WHERE id_item = %s AND id_role = (SELECT id FROM roles WHERE id = (SELECT id_role FROM users WHERE name = %s));", (i, user))
+        cur.execute("SELECT url, data_type FROM data_streams WHERE id_item = %s AND id_role = (SELECT id FROM roles WHERE id = (SELECT id_role FROM users WHERE name = %s));", (i, "niño"))
         data_stream = cur.fetchall()
         print i + " -> " + str(data_stream)
         if len(data_stream) > 0:

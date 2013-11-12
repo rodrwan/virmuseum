@@ -1,3 +1,4 @@
+#encoding: utf-8 
 Virmuseum::Application.routes.draw do
 
   resources :users
@@ -17,7 +18,7 @@ Virmuseum::Application.routes.draw do
 
   resources :recommends
 
-  match '/recommends/:user/:item_id' => 'recommends#show', :as => :user, :as => :item_id 
+  match '/recommends/:user/:item_id' => 'recommends#show', :as => Rack::Utils.escape(:user), :as => :item_id 
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

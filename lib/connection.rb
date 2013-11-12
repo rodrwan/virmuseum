@@ -1,3 +1,4 @@
+#encoding: utf-8 
 class Connection
   attr_accessor :conn
 
@@ -15,6 +16,6 @@ class Connection
 
   def get_recommend(item)
     puts item[:item_id] + " " + item[:user]
-    conn.post '/recommend/get', { :item_id => item[:item_id].to_i, :user => item[:user] }
+    conn.post '/recommend/get', { :item_id => item[:item_id], :user => item[:user] }
   end
 end

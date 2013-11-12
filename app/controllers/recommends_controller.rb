@@ -15,9 +15,12 @@ class RecommendsController < ApplicationController
   before_filter :get_connection
   def show
     # @tvi = TermVsItem.find(params[:id])
-    item = { :item_id => params[:item_id], :user => params[:user] }
+    user = Rack::Utils.escape(params[:user])
+    item = { :item_id => params[:item_id], :user => user }
+    puts item
     response = @conn.get_recommend(item)
     response = response.body
+    puts response
     response = JSON.parse(response)
     if response['elements'] > 0
       respond_to do |format|
