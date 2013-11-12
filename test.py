@@ -7,7 +7,9 @@ from collections import Counter
 from numpy import linalg as LA
 import numpy as np
 from math import sqrt, pow
-
+from bottle import route, run, template, static_file, debug, request, abort, HTTPResponse
+import json
+import random
 """
 #
 # Calculo de distancia con
@@ -152,187 +154,231 @@ def token(files):
   return token #, len(counts)
 
 ############## main block ##############
-db = sql.connect(host="localhost", # host
+@route('/recommend/get', method='POST')
+def recommend():
+  item = int(request.forms.get('item_id')) # item to compare
+  # TODO: med its gonna be a random value to determinate the metric for distance calc
+  user = request.forms.get('user') # user who trigger the recommendation
+  print str(item) + " " + user
+  db = sql.connect(host="localhost", # host
                      user="root", # username
                      passwd="root", # password
                      db="virmuseum", # name of the db
                      ) 
 
-cur = db.cursor() 
-# we retraive the description of the items set
-cur.execute("SELECT description FROM items")
+  cur = db.cursor() 
+  # we retraive the description of the items set
+  cur.execute("SELECT description FROM items")
 
-globalWords = []
-descript = cur.fetchall()
-bag_of_word = []
+  globalWords = []
+  descript = cur.fetchall()
+  bag_of_word = []
 
-# we meke a bag of word
-text = ""
-for row in descript:
-  text += row[0] + " "
-tok = token(text.rstrip())
-for i in tok:
-  word = i[0].replace(".", "")
-  if word in bag_of_word:
-    pass
-  else:
-    bag_of_word.append(word)
-
-matrix = []
-# here we define the matrix of occurency
-for row in descript:
-  matrix_row = [0]*len(bag_of_word)
-  tok = token(row[0].rstrip())
-  for j in tok:
-    word = j[0].replace(".", "")
-    pos = bag_of_word.index( word )
+  # we meke a bag of word
+  text = ""
+  for row in descript:
+    text += row[0] + " "
+  tok = token(text.rstrip())
+  for i in tok:
+    word = i[0].replace(".", "")
     if word in bag_of_word:
-      matrix_row[pos] += j[1]
+      pass
     else:
-      matrix_row[pos] = 0
-  matrix.append(matrix_row)
+      bag_of_word.append(word)
 
-#item selected
+  matrix = []
+  # here we define the matrix of occurency
+  for row in descript:
+    matrix_row = [0]*len(bag_of_word)
+    tok = token(row[0].rstrip())
+    for j in tok:
+      word = j[0].replace(".", "")
+      pos = bag_of_word.index( word )
+      if word in bag_of_word:
+        matrix_row[pos] += j[1]
+      else:
+        matrix_row[pos] = 0
+    matrix.append(matrix_row)
+
+  print "########################################################################################"
+  print "########################################################################################"
+  print
+  print "Item seleccionado: " + str(item+1)
+  row = descript[item]
+  cur.execute("SELECT name FROM hierarchies WHERE id = (SELECT id_hierarchy FROM items WHERE id = %s)", item+1)
+  hierarchy = cur.fetchall()[0][0]
+  print "Jerarquia: " + hierarchy
+  print "Usuario: " + user
+  print
+  print "########################################################################################"
+  print "########################################################################################"
+  cur.execute("SELECT id FROM items WHERE id_hierarchy = (SELECT id FROM hierarchies WHERE name = %s) AND id != %s", (hierarchy, item+1))
+  items_by_hierarchy = cur.fetchall()
+  if len(items_by_hierarchy) == 0:
+    return json.dumps({"elements":0, "error": "true", "msg": "no existen resultados para esta jerarquia"}) 
+    
+
+  # here we choose the method to calculate the distance between items
+  final_result = {}
+  i = 0
+  med = 0.0
+  med = float("{0:.2f}".format(random.random()))
+  print med
+  for item_bag_temp in matrix:
+    if med >= 0.0 and med < 0.25:
+      print "Metrica: Manhattan"
+      final_result[str(i+1)] = manhattan(item_bag_temp, row[0], bag_of_word)
+    elif med >= 0.25 and med < 0.5:
+      print "Metrica: Canberra"
+      final_result[str(i+1)] = canberra(item_bag_temp, row[0], bag_of_word)
+    elif med >= 0.5 and med < 0.75:
+      print "Metrica: Squared cord"
+      final_result[str(i+1)] = cord(item_bag_temp, row[0], bag_of_word)
+    elif med >= 0.75 and med <= 1.0:
+      print "Metrica: Squared Chi-squered"
+      final_result[str(i+1)] = chiSquared(item_bag_temp, row[0], bag_of_word)
+    else:
+      print "error en la eleccion, metodo no existe"
+      print "opciones:"
+      print "\tman"
+      print "\tcan"
+      print "\tcord"
+      print "\tchi"
+      break
+      sys.exit()
+    i += 1
+
+  # we organize the result in diferenct way
+  # ascendent
+  rec_asc = sorted(final_result.items(), key=lambda x: (x[1], x[0]))
+  # decendent
+  rec_desc = sorted(final_result.items(), key=lambda x: (-x[1], x[0]))
+
+  if user == "adulto":
+    print "Resultados mas diversos:"
+    final_recommend_id = []
+    for i in rec_desc:
+      if str(item+1) != i[0]:
+        final_recommend_id.append(i[0])
+
+    print "Sin filtro jerarquico:"
+    i = len(final_recommend_id)
+    j = 0
+    while j < 10:
+      if j == i:
+        break
+      print "Item " + str(final_recommend_id[j])
+      j += 1
+    print
+
+    j = 0
+    final_recommend_id_herarchy = []
+    for i in final_recommend_id:
+      if str(items_by_hierarchy[j][0]) == i:
+        final_recommend_id_herarchy.append(i)
+
+    print "Con filtro jerarquico:"
+    i = len(final_recommend_id_herarchy)
+    j = 0
+    while j < 10:
+      if j == i:
+        break
+      print "Item " + str(final_recommend_id_herarchy[j])
+      j += 1
+    print
+
+    print "Recomendacion final para adulto:"
+    final_response = {}
+    final_response['order'] = 'desc'
+    count = 0
+    for i in final_recommend_id:
+      cur.execute("SELECT visible FROM items WHERE id = %s", (i))
+      visible = cur.fetchall()
+
+      if visible[0][0] == 1:
+        cur.execute("SELECT url, data_type FROM data_streams WHERE id_item = %s AND id_role = (SELECT id FROM roles WHERE id = (SELECT id_role FROM users WHERE name = %s));", (i, user))
+        data_stream = cur.fetchall()
+        print i + " -> " + str(data_stream)
+        if len(data_stream) > 0:
+          count += 1
+          data_stream_response = {}
+          for ds in data_stream:
+            data_stream_response['url'] = ds[0]
+            data_stream_response['type'] = ds[1]
+          final_response[i] = data_stream_response
+    
+    if count > 0:
+      final_response['elements'] = count
+      return json.dumps(final_response)
+    else:
+      return json.dumps({'elements' : 0})
+
+  ###################### resultados mas parecidos #############################
+  if user == "niño":
+    print "Resultados mas parecidos:"
+    final_recommend_id = []
+    for i in rec_asc:
+      if str(item+1) != i[0]:
+        final_recommend_id.append(i[0])
+
+    print "Sin filtro jerarquico:"
+    i = len(final_recommend_id)
+    j = 0
+    while j < 10:
+      if j == i:
+        break
+      print "Item " + str(final_recommend_id[j])
+      j += 1
+    print
+
+    j = 0
+    final_recommend_id_herarchy = []
+    for i in final_recommend_id:
+      if str(items_by_hierarchy[j][0]) == i:
+        final_recommend_id_herarchy.append(i)
+
+    print "Con filtro jerarquico:"
+    i = len(final_recommend_id_herarchy)
+    j = 0
+    while j < 10:
+      if j == i:
+        break
+      print "Item " + str(final_recommend_id_herarchy[j])
+      j += 1
+    print
+
+    print "Recomendacion final para niño:"
+    final_response = {}
+    final_response['order'] = 'desc'
+    count = 0
+
+    for i in final_recommend_id:
+      cur.execute("SELECT visible, visits FROM items WHERE id = %s", (i))
+      visible = cur.fetchall()
+      if visible[0][0] == 1:
+        cur.execute("SELECT url, data_type FROM data_streams WHERE id_item = %s AND id_role = (SELECT id FROM roles WHERE id = (SELECT id_role FROM users WHERE name = %s));", (i, user))
+        data_stream = cur.fetchall()
+        print i + " -> " + str(data_stream)
+        if len(data_stream) > 0:
+          count += 1
+          data_stream_response = {}
+          for ds in data_stream:
+            data_stream_response['url'] = ds[0]
+            data_stream_response['type'] = ds[1]
+          final_response[i] = data_stream_response
+    
+    if count > 0:
+      final_response['elements'] = count
+      return json.dumps(final_response)
+    else:
+      return json.dumps({'elements' : 0})
+
 try:
-  item = int(sys.argv[1]) # item to compare
-  med = sys.argv[2]       # method for calculate distance
-  user = sys.argv[3]      # user who want the recommendation
-except:
-  print "Faltan parametros:"
-  print "python test.py [item] [med] [user]"
-  print "opciones para med:"
-  print "\tman"
-  print "\tcan"
-  print "\tcord"
-  print "\tchi"
-print "########################################################################################"
-print "########################################################################################"
-print
-print "Item seleccionado: " + str(item+1)
-row = descript[item]
-cur.execute("SELECT name FROM hierarchies WHERE id = (SELECT id_hierarchy FROM items WHERE id = %s)", item+1)
-hierarchy = cur.fetchall()[0][0]
-print "Jerarquia: " + hierarchy
-print "Usuario: " + user
-print
-print "########################################################################################"
-print "########################################################################################"
-cur.execute("SELECT id FROM items WHERE id_hierarchy = (SELECT id FROM hierarchies WHERE name = %s) AND id != %s", (hierarchy, item+1))
-items_by_hierarchy = cur.fetchall()
-
-# here we choose the method to calculate the distance between items
-final_result = {}
-i = 0
-for item_bag_temp in matrix:
-  if med == "man":
-    final_result[str(i+1)] = manhattan(item_bag_temp, row[0], bag_of_word)
-  elif med == "can":
-    final_result[str(i+1)] = canberra(item_bag_temp, row[0], bag_of_word)
-  elif med == "cord":
-    final_result[str(i+1)] = cord(item_bag_temp, row[0], bag_of_word)
-  elif med == "chi":
-    final_result[str(i+1)] = chiSquared(item_bag_temp, row[0], bag_of_word)
-  else:
-    print "error en la eleccion, metodo no existe"
-    print "opciones:"
-    print "\tman"
-    print "\tcan"
-    print "\tcord"
-    print "\tchi"
-    break
-    sys.exit()
-  i += 1
-
-# we organize the result in diferenct way
-# ascendent
-rec_asc = sorted(final_result.items(), key=lambda x: (x[1], x[0]))
-# decendent
-rec_desc = sorted(final_result.items(), key=lambda x: (-x[1], x[0]))
-
-if user == "adulto":
-  print "Resultados mas diversos:"
-  final_recommend_id = []
-  for i in rec_desc:
-    if str(item+1) != i[0]:
-      final_recommend_id.append(i[0])
-
-  print "Sin filtro jerarquico:"
-  i = len(final_recommend_id)
-  j = 0
-  while j < 10:
-    if j == i:
-      break
-    print "Item " + str(final_recommend_id[j])
-    j += 1
-  print
-
-  j = 0
-  final_recommend_id_herarchy = []
-  for i in final_recommend_id:
-    if str(items_by_hierarchy[j][0]) == i:
-      final_recommend_id_herarchy.append(i)
-
-  print "Con filtro jerarquico:"
-  i = len(final_recommend_id_herarchy)
-  j = 0
-  while j < 10:
-    if j == i:
-      break
-    print "Item " + str(final_recommend_id_herarchy[j])
-    j += 1
-  print
-
-  print "Recomendacion final para adulto:"
-  for i in final_recommend_id:
-    cur.execute("SELECT visible FROM items WHERE id = %s", (i))
-    visible = cur.fetchall()
-    if visible[0][0] == 1:
-      cur.execute("SELECT url, data_type FROM data_streams WHERE id_item = %s AND id_role = (SELECT id FROM roles WHERE id = (SELECT id_role FROM users WHERE name = %s));", (i, user))
-      data_stream = cur.fetchall()
-      print i + " -> " + str(data_stream)
-
-###################### resultados mas parecidos #############################
-if user == "niño":
-  print "Resultados mas parecidos:"
-  final_recommend_id = []
-  for i in rec_asc:
-    if str(item+1) != i[0]:
-      final_recommend_id.append(i[0])
-
-  print "Sin filtro jerarquico:"
-  i = len(final_recommend_id)
-  j = 0
-  while j < 10:
-    if j == i:
-      break
-    print "Item " + str(final_recommend_id[j])
-    j += 1
-  print
-
-  j = 0
-  final_recommend_id_herarchy = []
-  for i in final_recommend_id:
-    if str(items_by_hierarchy[j][0]) == i:
-      final_recommend_id_herarchy.append(i)
-
-  print "Con filtro jerarquico:"
-  i = len(final_recommend_id_herarchy)
-  j = 0
-  while j < 10:
-    if j == i:
-      break
-    print "Item " + str(final_recommend_id_herarchy[j])
-    j += 1
-  print
-
-  print "Recomendacion final para niño:"
-  for i in final_recommend_id:
-    cur.execute("SELECT visible, visits FROM items WHERE id = %s", (i))
-    visible = cur.fetchall()
-    if visible[0][0] == 1 and visible[0][1] > 0:
-      cur.execute("SELECT url, data_type FROM data_streams WHERE id_item = %s AND id_role = (SELECT id FROM roles WHERE id = (SELECT id_role FROM users WHERE name = %s));", (i, user))
-      data_stream = cur.fetchall()
-      print i + " -> " + str(data_stream)
+  debug(True)
+  run(host='0.0.0.0', port=3001, quiet=True) # reloader=True, 
+except (KeyboardInterrupt, SystemExit):
+  print "lee el readme en una de esas se solucionan tus problemas"
+  sys.exit()
 
 
 # we need save this values into the db

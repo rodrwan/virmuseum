@@ -2,27 +2,22 @@ Virmuseum::Application.routes.draw do
 
   resources :users
 
-
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
 
   resources :terms
 
-
   resources :items
-
 
   resources :roles
 
-
   resources :data_streams
-
 
   resources :places
 
-
   resources :recommends
 
+  match '/recommends/:user/:item_id' => 'recommends#show', :as => :user, :as => :item_id 
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
