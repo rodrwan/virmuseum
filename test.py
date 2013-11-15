@@ -317,7 +317,6 @@ def recommend():
           data_stream_response = {}
           data_stream_response['name'] = name[0][0]
           data_stream_response['cientific_name'] = name[0][1]
-          data_stream_response['hierarchy'] = name[0][2]
           for ds in data_stream:
             data_stream_response['url'] = ds[0]
             data_stream_response['type'] = ds[1]

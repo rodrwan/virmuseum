@@ -27,9 +27,9 @@ Item.create([
 User.create([ [name: "adulto", role_id: 3], [name: "child", role_id: 2], [name: "guia", role_id: 1] ])
 
 DataStream.create([
-    [item_id: 1, role_id: 2, url: 'https://www.youtube.com/watch?v=ANbukSJdu3k', data_type: 'Video'],
-    [item_id: 2, role_id: 2, url: 'https://www.youtube.com/watch?v=lolT5nIQIY4', data_type: 'Video'],
-    [item_id: 3, role_id: 1, url: 'https://www.youtube.com/watch?v=PnAUMomuY9o', data_type: 'Video'],
+    [item_id: 1, role_id: 3, url: 'https://www.youtube.com/watch?v=ANbukSJdu3k', data_type: 'Video'],
+    [item_id: 2, role_id: 3, url: 'https://www.youtube.com/watch?v=lolT5nIQIY4', data_type: 'Video'],
+    [item_id: 3, role_id: 3, url: 'https://www.youtube.com/watch?v=PnAUMomuY9o', data_type: 'Video'],
     [item_id: 4, role_id: 3, url: 'http://www.youtube.com/watch?v=l2Bvbd9xo4g', data_type: 'Video'],
     [item_id: 5, role_id: 3, url: 'http://www.youtube.com/watch?v=-VsfJadK_sg', data_type: 'Video'],
     [item_id: 6, role_id: 3, url: 'http://animaldiversity.ummz.umich.edu/collections/contributors/david_blank/pandaeating/medium.jpg', data_type: 'Imagen'],
