@@ -16,14 +16,17 @@ class RecommendsController < ApplicationController
   def show
     # @tvi = TermVsItem.find(params[:id])
     user = Rack::Utils.escape(params[:user])
+    @item = Item.find((params[:item_id].to_i+1))
+    name = @item.name
+    hierarchy = @item.hierarchy.name
     item = { :item_id => params[:item_id], :user => user }
-    puts item
     response = @conn.get_recommend(item)
     response = response.body
-    puts response
     response = JSON.parse(response)
     if response['elements'] > 0
       respond_to do |format|
+        response['recommended_for'] = name
+        response['hierarchy'] = hierarchy
         format.json {render json: response }
       end
     else

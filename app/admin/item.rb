@@ -1,5 +1,5 @@
 ActiveAdmin.register Item do
-	index do
+  index do
         column :id
         column :name
         column :visits

@@ -1,4 +1,3 @@
-#encoding: utf-8 
 class ItemsController < ApplicationController
   # GET /items
   # GET /items.json

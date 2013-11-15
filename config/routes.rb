@@ -1,4 +1,3 @@
-#encoding: utf-8 
 Virmuseum::Application.routes.draw do
 
   resources :users
