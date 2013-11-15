@@ -14,7 +14,7 @@ group :development do
 	gem 'sqlite3'
 	gem "rails-erd"
 end
-gem 'mysql2'
+# gem 'mysql2'
 
 gem 'activeadmin'
 # Gems used only for assets and not required
