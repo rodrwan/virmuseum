@@ -97,7 +97,6 @@ GEM
     mime-types (1.25)
     multi_json (1.8.2)
     multipart-post (1.2.0)
-    mysql2 (0.3.14)
     orm_adapter (0.5.0)
     polyamorous (0.5.0)
       activerecord (~> 3.0)
@@ -170,7 +169,6 @@ DEPENDENCIES
   jquery-rails
   jquery-ui-rails
   meta_search (>= 1.1.0.pre)
-  mysql2
   rails (= 3.2.13)
   rails-erd
   sass-rails (~> 3.2.3)
